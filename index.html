@@ -1,12 +1,12 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-Hans">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#f6f7f9" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#16181c" media="(prefers-color-scheme: dark)">
-<title>Three-Tier Sale Calculator</title>
+<title>售地计算器（三档佣金）</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232f6fe4'/%3E%3Crect x='7' y='18' width='4' height='7' fill='white'/%3E%3Crect x='14' y='13' width='4' height='12' fill='white'/%3E%3Crect x='21' y='7' width='4' height='18' fill='white'/%3E%3C/svg%3E">
 <style>
 :root{
@@ -38,7 +38,7 @@
 }
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--background);color:var(--foreground);font:16px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
+body{margin:0;background:var(--background);color:var(--foreground);font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans SC",sans-serif}
 .tabular-nums,input[type=number]{font-variant-numeric:tabular-nums}
 #tier-sale-lab{position:relative;max-width:880px;margin:0 auto;padding:0 16px calc(32px + env(safe-area-inset-bottom));display:grid;gap:16px}
 #tier-sale-lab [hidden]{display:none!important}
@@ -47,6 +47,10 @@ h1{font-size:1.5rem}
 h2{font-size:1.1rem}
 .intro{padding-top:20px}
 .intro p{margin:6px 0 0;color:var(--muted-foreground)}
+.intro-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.lang{display:inline-flex;border:1px solid var(--input-border);border-radius:999px;padding:3px;background:var(--card);flex:none}
+.lang button{font:inherit;font-size:.9rem;min-height:38px;min-width:64px;padding:6px 14px;border:0;border-radius:999px;background:transparent;color:var(--foreground);cursor:pointer}
+.lang button[aria-pressed="true"]{background:var(--primary);color:var(--primary-foreground);font-weight:600}
 
 /* Sticky summary so the key numbers stay visible while adjusting inputs */
 .summary{position:sticky;top:0;z-index:3;margin:0 -16px;padding:10px 16px calc(10px);background:color-mix(in srgb,var(--background) 92%,transparent);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid var(--border);display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
@@ -144,117 +148,181 @@ tr.highlight td{font-weight:650}
 <body>
 <div id="tier-sale-lab">
   <header class="intro">
-    <h1>Three-tier sale calculator</h1>
-    <p>Compare the proposed tiered broker fee with the original flat 5%. Move the sliders or type a number — everything updates instantly.</p>
+    <div class="intro-top">
+      <h1 data-i18n="title"></h1>
+      <div class="lang" role="group" aria-label="Language / 语言">
+        <button type="button" data-lang="en" lang="en">English</button><button type="button" data-lang="zh" lang="zh-Hans">中文</button>
+      </div>
+    </div>
+    <p data-i18n="intro"></p>
   </header>
 
   <div class="summary" aria-live="polite">
-    <div><span class="k">Sale price</span><span class="v tabular-nums" id="ts-sum-price"></span></div>
-    <div><span class="k">Broker fee</span><span class="v tabular-nums" id="ts-sum-broker"></span></div>
-    <div><span class="k">Seller keeps</span><span class="v tabular-nums" id="ts-sum-seller"></span></div>
+    <div><span class="k" data-i18n="sumPrice"></span><span class="v tabular-nums" id="ts-sum-price"></span></div>
+    <div><span class="k" data-i18n="sumBroker"></span><span class="v tabular-nums" id="ts-sum-broker"></span></div>
+    <div><span class="k" data-i18n="sumSeller"></span><span class="v tabular-nums" id="ts-sum-seller"></span></div>
   </div>
 
   <section class="card">
-    <h2>Sale price</h2>
+    <h2 data-i18n="hPrice"></h2>
     <div class="price-value tabular-nums" id="ts-price-label"></div>
     <div class="price-row">
-      <input id="ts-price" class="form-range" type="range" min="500000" max="1200000" step="1000" value="800000" aria-label="Sale price slider">
-      <span class="euro"><input id="ts-price-number" class="form-control" type="number" inputmode="numeric" aria-label="Sale price in euros" min="100000" max="3000000" step="1000" value="800000"></span>
+      <input id="ts-price" class="form-range" type="range" min="500000" max="1200000" step="1000" value="800000" data-i18n-aria="ariaPriceSlider">
+      <span class="euro"><input id="ts-price-number" class="form-control" type="number" inputmode="numeric" data-i18n-aria="ariaPriceInput" min="100000" max="3000000" step="1000" value="800000"></span>
     </div>
-    <div id="ts-chart0-wrap"><svg id="ts-chart0" role="img" aria-label="What the seller keeps after fees and tax at each sale price"></svg></div>
-    <div class="text-small">The dot is the price above. Tap the chart to read any price.</div>
+    <div id="ts-chart0-wrap"><svg id="ts-chart0" role="img" data-i18n-aria="ariaChart0"></svg></div>
+    <div class="text-small" data-i18n="chart0Note"></div>
   </section>
 
   <section class="card">
-    <h2>Broker fee tiers</h2>
+    <h2 data-i18n="hTiers"></h2>
     <div class="thresholds">
-      <label class="form-label">First threshold<span class="euro"><input id="ts-t1" class="form-control" type="number" inputmode="numeric" min="100000" max="2000000" step="10000" value="700000"></span></label>
-      <label class="form-label">Second threshold<span class="euro"><input id="ts-t2" class="form-control" type="number" inputmode="numeric" min="100001" max="2500000" step="10000" value="750000"></span></label>
+      <label class="form-label"><span data-i18n="t1Label"></span><span class="euro"><input id="ts-t1" class="form-control" type="number" inputmode="numeric" min="100000" max="2000000" step="10000" value="700000"></span></label>
+      <label class="form-label"><span data-i18n="t2Label"></span><span class="euro"><input id="ts-t2" class="form-control" type="number" inputmode="numeric" min="100001" max="2500000" step="10000" value="750000"></span></label>
     </div>
     <div id="ts-error" class="text-destructive" role="alert" hidden></div>
     <div class="tiers">
-      <div class="tier" style="--c:var(--viz-series-1)"><label class="form-label" for="ts-r1">Tier 1 <span class="hint" id="ts-band1"></span></label><div class="rate-row"><input id="ts-r1" class="form-range" type="range" min="0" max="15" step="0.25" value="4.5"><label class="rate-number"><input id="ts-r1-number" class="form-control" type="number" inputmode="decimal" aria-label="Tier 1 brokerage rate percent" min="0" max="100" step="0.25" value="4.5">%</label></div><div class="text-small" id="ts-part1"></div></div>
-      <div class="tier" style="--c:var(--viz-series-2)"><label class="form-label" for="ts-r2">Tier 2 <span class="hint" id="ts-band2"></span></label><div class="rate-row"><input id="ts-r2" class="form-range" type="range" min="0" max="25" step="0.25" value="10"><label class="rate-number"><input id="ts-r2-number" class="form-control" type="number" inputmode="decimal" aria-label="Tier 2 brokerage rate percent" min="0" max="100" step="0.25" value="10">%</label></div><div class="text-small" id="ts-part2"></div></div>
-      <div class="tier" style="--c:var(--viz-series-3)"><label class="form-label" for="ts-r3">Tier 3 <span class="hint" id="ts-band3"></span></label><div class="rate-row"><input id="ts-r3" class="form-range" type="range" min="0" max="40" step="0.25" value="15"><label class="rate-number"><input id="ts-r3-number" class="form-control" type="number" inputmode="decimal" aria-label="Tier 3 brokerage rate percent" min="0" max="100" step="0.25" value="15">%</label></div><div class="text-small" id="ts-part3"></div></div>
+      <div class="tier" style="--c:var(--viz-series-1)"><label class="form-label" for="ts-r1"><span data-i18n="tier" data-n="1"></span> <span class="hint" id="ts-band1"></span></label><div class="rate-row"><input id="ts-r1" class="form-range" type="range" min="0" max="15" step="0.25" value="4.5" data-i18n-aria="ariaRate" data-n="1"><label class="rate-number"><input id="ts-r1-number" class="form-control" type="number" inputmode="decimal" data-i18n-aria="ariaRate" data-n="1" min="0" max="100" step="0.25" value="4.5">%</label></div><div class="text-small" id="ts-part1"></div></div>
+      <div class="tier" style="--c:var(--viz-series-2)"><label class="form-label" for="ts-r2"><span data-i18n="tier" data-n="2"></span> <span class="hint" id="ts-band2"></span></label><div class="rate-row"><input id="ts-r2" class="form-range" type="range" min="0" max="25" step="0.25" value="10" data-i18n-aria="ariaRate" data-n="2"><label class="rate-number"><input id="ts-r2-number" class="form-control" type="number" inputmode="decimal" data-i18n-aria="ariaRate" data-n="2" min="0" max="100" step="0.25" value="10">%</label></div><div class="text-small" id="ts-part2"></div></div>
+      <div class="tier" style="--c:var(--viz-series-3)"><label class="form-label" for="ts-r3"><span data-i18n="tier" data-n="3"></span> <span class="hint" id="ts-band3"></span></label><div class="rate-row"><input id="ts-r3" class="form-range" type="range" min="0" max="40" step="0.25" value="15" data-i18n-aria="ariaRate" data-n="3"><label class="rate-number"><input id="ts-r3-number" class="form-control" type="number" inputmode="decimal" data-i18n-aria="ariaRate" data-n="3" min="0" max="100" step="0.25" value="15">%</label></div><div class="text-small" id="ts-part3"></div></div>
     </div>
-    <p class="text-small" style="margin:0">Each rate applies only to the part of the price inside its tier.</p>
+    <p class="text-small" style="margin:0" data-i18n="tierNote"></p>
   </section>
 
   <section class="card">
-    <h2>Fees to include</h2>
+    <h2 data-i18n="hFees"></h2>
     <div class="settings">
-      <label class="form-check"><input id="ts-vat" class="form-check-input" type="checkbox" checked><span>Include 23% VAT in seller costs</span></label>
-      <label class="form-check"><input id="ts-legal" class="form-check-input" type="checkbox" checked><span>Include solicitor fees</span></label>
+      <label class="form-check"><input id="ts-vat" class="form-check-input" type="checkbox" checked><span data-i18n="vatCheck"></span></label>
+      <label class="form-check"><input id="ts-legal" class="form-check-input" type="checkbox" checked><span data-i18n="legalCheck"></span></label>
     </div>
     <div id="ts-legal-controls" class="thresholds">
-      <label class="form-label">Solicitor rate below second threshold<span class="rate-number"><input id="ts-s1" class="form-control" type="number" inputmode="decimal" min="0" max="20" step="0.25" value="1.25">%</span></label>
-      <label class="form-label">Solicitor rate above second threshold<span class="rate-number"><input id="ts-s2" class="form-control" type="number" inputmode="decimal" min="0" max="20" step="0.25" value="2">%</span></label>
+      <label class="form-label"><span data-i18n="s1Label"></span><span class="rate-number"><input id="ts-s1" class="form-control" type="number" inputmode="decimal" min="0" max="20" step="0.25" value="1.25">%</span></label>
+      <label class="form-label"><span data-i18n="s2Label"></span><span class="rate-number"><input id="ts-s2" class="form-control" type="number" inputmode="decimal" min="0" max="20" step="0.25" value="2">%</span></label>
     </div>
   </section>
 
   <section class="card">
-    <h2>Capital gains tax (Portugal)</h2>
-    <label class="form-check"><input id="ts-tax" class="form-check-input" type="checkbox" checked><span>Include estimated capital gains tax</span></label>
+    <h2 data-i18n="hTax"></h2>
+    <label class="form-check"><input id="ts-tax" class="form-check-input" type="checkbox" checked><span data-i18n="taxCheck"></span></label>
     <div id="ts-tax-controls" class="tax-controls">
       <div class="thresholds">
-        <label class="form-label">Purchase price <span class="hint">from the 2019 deed</span><span class="euro"><input id="ts-buy" class="form-control" type="number" inputmode="numeric" min="0" max="5000000" step="1000" value="650000"></span></label>
-        <label class="form-label">Inflation coefficient <span class="hint">bought 2019, sold 2026 = 1.20</span><input id="ts-coef" class="form-control" type="number" inputmode="decimal" min="1" max="10" step="0.01" value="1.20"></label>
-        <label class="form-label">Purchase costs paid in 2019 <span class="hint">IMT, stamp duty, notary — if known</span><span class="euro"><input id="ts-buycosts" class="form-control" type="number" inputmode="numeric" min="0" max="1000000" step="100" value="0"></span></label>
-        <label class="form-label">Other Portuguese taxable income that year <span class="hint">€0 if none</span><span class="euro"><input id="ts-other" class="form-control" type="number" inputmode="numeric" min="0" max="5000000" step="1000" value="0"></span></label>
+        <label class="form-label"><span data-i18n="buyLabel"></span><span class="hint" data-i18n="buyHint"></span><span class="euro"><input id="ts-buy" class="form-control" type="number" inputmode="numeric" min="0" max="5000000" step="1000" value="650000"></span></label>
+        <label class="form-label"><span data-i18n="coefLabel"></span><span class="hint" data-i18n="coefHint"></span><input id="ts-coef" class="form-control" type="number" inputmode="decimal" min="1" max="10" step="0.01" value="1.20"></label>
+        <label class="form-label"><span data-i18n="buyCostsLabel"></span><span class="hint" data-i18n="buyCostsHint"></span><span class="euro"><input id="ts-buycosts" class="form-control" type="number" inputmode="numeric" min="0" max="1000000" step="100" value="0"></span></label>
+        <label class="form-label"><span data-i18n="otherLabel"></span><span class="hint" data-i18n="otherHint"></span><span class="euro"><input id="ts-other" class="form-control" type="number" inputmode="numeric" min="0" max="5000000" step="1000" value="0"></span></label>
       </div>
-      <label class="form-check"><input id="ts-deduct" class="form-check-input" type="checkbox" checked><span>Deduct this sale's broker and solicitor fees from the gain</span></label>
+      <label class="form-check"><input id="ts-deduct" class="form-check-input" type="checkbox" checked><span data-i18n="deductCheck"></span></label>
       <p class="text-small" id="ts-tax-basis" style="margin:0"></p>
     </div>
   </section>
 
   <div class="viz-grid" aria-live="polite">
-    <div class="card viz-stat"><div class="text-small">Proposed broker fee · before VAT</div><div class="viz-stat-value tabular-nums" id="ts-proposed"></div><div class="text-small" id="ts-effective"></div></div>
-    <div class="card viz-stat"><div class="text-small">Original 5% · same sale price</div><div class="viz-stat-value tabular-nums" id="ts-original"></div><div class="text-small" id="ts-fee-delta"></div></div>
-    <div class="card viz-stat"><div class="text-small">Capital gains tax · estimate</div><div class="viz-stat-value tabular-nums" id="ts-cgt"></div><div class="text-small" id="ts-cgt-note"></div></div>
-    <div class="card viz-stat primary"><div class="text-small">Seller keeps · proposed fees</div><div class="viz-stat-value tabular-nums" id="ts-seller"></div><div class="text-small" id="ts-seller-note"></div></div>
+    <div class="card viz-stat"><div class="text-small" data-i18n="stProposed"></div><div class="viz-stat-value tabular-nums" id="ts-proposed"></div><div class="text-small" id="ts-effective"></div></div>
+    <div class="card viz-stat"><div class="text-small" data-i18n="stOriginal"></div><div class="viz-stat-value tabular-nums" id="ts-original"></div><div class="text-small" id="ts-fee-delta"></div></div>
+    <div class="card viz-stat"><div class="text-small" data-i18n="stCgt"></div><div class="viz-stat-value tabular-nums" id="ts-cgt"></div><div class="text-small" id="ts-cgt-note"></div></div>
+    <div class="card viz-stat primary"><div class="text-small" data-i18n="stSeller"></div><div class="viz-stat-value tabular-nums" id="ts-seller"></div><div class="text-small" id="ts-seller-note"></div></div>
   </div>
 
   <section class="card">
-    <h2>Where the sale price goes</h2>
+    <h2 data-i18n="hBreakdown"></h2>
     <table class="breakdown"><tbody id="ts-breakdown"></tbody></table>
   </section>
 
   <section class="card">
-    <h2>Seller costs across sale prices</h2>
-    <p class="text-small" style="margin:0">Broker + solicitor fees, VAT and capital gains tax added together. The bend in the line is where tax starts.</p>
+    <h2 data-i18n="hCosts"></h2>
+    <p class="text-small" style="margin:0" data-i18n="costsNote"></p>
     <div id="ts-legend2" class="viz-row"></div>
-    <div id="ts-chart2-wrap"><svg id="ts-chart2" role="img" aria-label="Total seller costs including fees, VAT and capital gains tax versus sale price"></svg></div>
+    <div id="ts-chart2-wrap"><svg id="ts-chart2" role="img" data-i18n-aria="ariaChart2"></svg></div>
     <div class="text-small" id="ts-tax-start"></div>
   </section>
 
   <section class="card">
-    <h2>Broker fee across sale prices</h2>
+    <h2 data-i18n="hBroker"></h2>
     <div id="ts-legend" class="viz-row"></div>
-    <div id="ts-chart-wrap"><svg id="ts-chart" role="img" aria-label="Broker fee versus sale price, comparing marginal tiers with the original flat 5 percent"></svg></div>
-    <div class="text-small">Tap or drag on the chart to read values.</div>
+    <div id="ts-chart-wrap"><svg id="ts-chart" role="img" data-i18n-aria="ariaChart"></svg></div>
+    <div class="text-small" data-i18n="chartNote"></div>
   </section>
 
   <section class="card">
-    <h2>Fee contributed by each tier</h2>
-    <div id="ts-stacks" role="img" aria-label="Brokerage fee split across the three tiers compared with the original fee"></div>
+    <h2 data-i18n="hStacks"></h2>
+    <div id="ts-stacks" role="img" data-i18n-aria="ariaStacks"></div>
   </section>
 
   <section class="card">
-    <h2>Do both earn more than at the reference sale?</h2>
-    <label class="form-label">Reference sale price <span class="hint">original 5% broker + <span id="ts-reference-legal">1% solicitor</span></span><span class="euro" style="max-width:260px"><input id="ts-reference" class="form-control" type="number" inputmode="numeric" min="100000" max="3000000" step="10000" value="760000"></span></label>
-    <div class="table-responsive"><table><thead><tr><th>Scenario</th><th class="text-end">Broker gets¹</th><th class="text-end">Seller keeps²</th></tr></thead><tbody id="ts-results"></tbody></table></div>
+    <h2 data-i18n="hRef"></h2>
+    <label class="form-label"><span data-i18n="refLabel"></span><span class="hint"><span data-i18n="refHint"></span><span id="ts-reference-legal"></span></span><span class="euro" style="max-width:260px"><input id="ts-reference" class="form-control" type="number" inputmode="numeric" min="100000" max="3000000" step="10000" value="760000"></span></label>
+    <div class="table-responsive"><table><thead><tr><th data-i18n="thScenario"></th><th class="text-end" data-i18n="thBroker"></th><th class="text-end" data-i18n="thSeller"></th></tr></thead><tbody id="ts-results"></tbody></table></div>
     <div id="ts-win" aria-live="polite"></div>
     <div id="ts-match" class="text-small"></div>
   </section>
 
-  <div class="text-small foot">¹ Broker revenue excludes VAT and any agency split. ² Seller proceeds deduct the selected professional fees, VAT and, when switched on, estimated capital gains tax. Higher rates apply only within their tier. Solicitor fees: proposed marginal rates versus original flat 1% when enabled. Capital gains tax: half of the gain (sale price − purchase price × inflation coefficient − purchase costs − sale fees) is taxed at the 2026 IRS rates (12.5%–48%, plus the solidarity surcharge above €80,000), as a single filer. This is an estimate only — the accountant's figure is what counts. Other expenses and prior advances excluded.</div>
-  <div class="actions"><button type="button" class="btn" id="ts-reset">Reset to starting numbers</button></div>
+  <div class="text-small foot" data-i18n="foot"></div>
+  <div class="actions"><button type="button" class="btn" id="ts-reset" data-i18n="reset"></button></div>
   <div id="ts-tooltip" role="tooltip" hidden></div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
 <script>
 (()=>{
 const root=document.getElementById('tier-sale-lab'),q=id=>root.querySelector('#ts-'+id),euro=new Intl.NumberFormat('en-IE',{style:'currency',currency:'EUR',maximumFractionDigits:0}),num=new Intl.NumberFormat('en-IE',{maximumFractionDigits:2}),fmt=v=>euro.format(v),signed=v=>(v>=0?'+':'−')+fmt(Math.abs(v)),k=v=>'€'+num.format(v/1000)+'k';
+// All visible text, in English and Simplified Chinese. {x} placeholders are filled by t().
+const I18N={
+en:{
+  docTitle:'Three-Tier Sale Calculator',title:'Three-tier sale calculator',intro:'Compare the proposed tiered broker fee with the original flat 5%. Move the sliders or type a number — everything updates instantly.',
+  sumPrice:'Sale price',sumBroker:'Broker fee',sumSeller:'Seller keeps',
+  hPrice:'Sale price',ariaPriceSlider:'Sale price slider',ariaPriceInput:'Sale price in euros',ariaChart0:'What the seller keeps after fees and tax at each sale price',chart0Note:'The dot is the price above. Tap the chart to read any price.',
+  hTiers:'Broker fee tiers',t1Label:'First threshold',t2Label:'Second threshold',tier:'Tier {n}',ariaRate:'Tier {n} brokerage rate percent',tierNote:'Each rate applies only to the part of the price inside its tier.',
+  hFees:'Fees to include',vatCheck:'Include 23% VAT in seller costs',legalCheck:'Include solicitor fees',s1Label:'Solicitor rate below second threshold',s2Label:'Solicitor rate above second threshold',
+  hTax:'Capital gains tax (Portugal)',taxCheck:'Include estimated capital gains tax',buyLabel:'Purchase price',buyHint:'from the 2019 deed',coefLabel:'Inflation coefficient',coefHint:'bought 2019, sold 2026 = 1.20',buyCostsLabel:'Purchase costs paid in 2019',buyCostsHint:'IMT, stamp duty, notary — if known',otherLabel:'Other Portuguese taxable income that year',otherHint:'€0 if none',deductCheck:"Deduct this sale's broker and solicitor fees from the gain",
+  stProposed:'Proposed broker fee · before VAT',stOriginal:'Original 5% · same sale price',stCgt:'Capital gains tax · estimate',stSeller:'Seller keeps · proposed fees',
+  hBreakdown:'Where the sale price goes',hCosts:'Seller costs across sale prices',costsNote:'Broker + solicitor fees, VAT and capital gains tax added together. The bend in the line is where tax starts.',ariaChart2:'Total seller costs including fees, VAT and capital gains tax versus sale price',
+  hBroker:'Broker fee across sale prices',ariaChart:'Broker fee versus sale price, comparing marginal tiers with the original flat 5 percent',chartNote:'Tap or drag on the chart to read values.',
+  hStacks:'Fee contributed by each tier',ariaStacks:'Brokerage fee split across the three tiers compared with the original fee',
+  hRef:'Do both earn more than at the reference sale?',refLabel:'Reference sale price',refHint:'original 5% broker + ',refLegalOn:'1% solicitor',refLegalOff:'no solicitor fee',thScenario:'Scenario',thBroker:'Broker gets¹',thSeller:'Seller keeps²',
+  foot:"¹ Broker revenue excludes VAT and any agency split. ² Seller proceeds deduct the selected professional fees, VAT and, when switched on, estimated capital gains tax. Higher rates apply only within their tier. Solicitor fees: proposed marginal rates versus original flat 1% when enabled. Capital gains tax: half of the gain (sale price − purchase price × inflation coefficient − purchase costs − sale fees) is taxed at the 2026 IRS rates (12.5%–48%, plus the solidarity surcharge above €80,000), as a single filer. This is an estimate only — the accountant's figure is what counts. Other expenses and prior advances excluded.",
+  reset:'Reset to starting numbers',
+  err:'Enter positive prices and a second threshold greater than the first. Rates must be between 0% and 100%; tax inputs cannot be negative.',
+  upTo:'up to {a}',above:'above {a}',part:'{a} of price → {b} fee',effective:'{r}% effective broker rate',feeLess:'{a} less than original broker fee',feeMore:'{a} more than original broker fee',
+  taxBasis:'Adjusted purchase cost: {buy} × {coef}{costs} = {total}. Half of any gain above that is taxed at the 2026 IRS rates.',taxBasisCosts:' + {c} costs',
+  cgtOff:'Not included',cgtNone:'No gain at this price, so no tax',cgtGain:'Gain {g} · half taxed · {r}% of the gain',sellerNoteTax:'After fees, VAT and capital gains tax',sellerNoteNoTax:'After fees and VAT · before tax',
+  taxStartOff:'Capital gains tax is switched off.',taxStartNever:'No capital gains tax at any sale price with these inputs.',taxStartAt:'With the proposed fees, capital gains tax starts above a sale price of about {a}. Below that, the adjusted purchase cost and sale fees cancel out the gain.',
+  bdPrice:'Sale price',bdBroker:'Broker fee (proposed tiers)',bdLegal:'Solicitor fee',bdVat:'VAT 23% on those fees',bdTax:'Capital gains tax (estimate)',bdKeep:'Seller keeps',
+  rowRef:'Original at {a} (reference)',rowOrig:'Original at {a}',rowProp:'Proposed at {a}',
+  winBoth:'Both earn more than the reference sale. ',winNeither:'Neither earns less than the reference sale. ',winNot:'Not yet a gain for both versus the reference sale. ',winTail:'Broker {b} · Seller {s}.',
+  matchAt:'Broker matches the reference fee at {a}.',matchNever:'Broker matches the reference fee at no finite sale price with these rates.',needed:' At the selected price, tier 3 would need {r}% to match it.',
+  keyTier:'Tier {n} {a}',stackProp:'Proposed · three tiers',stackOrig:'Original · flat 5%',chartNA:'Chart unavailable; live figures remain available.',
+  axisX:'Sale price (€)',yKeeps:'Seller keeps (€)',yCosts:'Seller costs (€)',yBroker:'Broker fee (€)',taxStarts:'Tax starts',legProp:'Proposed tiers',legOrig:'Original flat 5%',
+  tipSale:'{a} sale',tipKeeps:'Seller keeps: {a}',tipFees:'Fees + VAT: {a}',tipTax:'Capital gains tax: {a}',tipProp:'Proposed: costs {c}{t}, keeps {k}',tipOrig:'Original: costs {c}{t}, keeps {k}',tipTaxPart:' (tax {a})',tipPropBroker:'Proposed broker: {a}',tipOrig5:'Original 5%: {a}'
+},
+zh:{
+  docTitle:'售地计算器（三档佣金）',title:'售地计算器（三档佣金）',intro:'比较新的三档中介佣金和原来固定5%的方案。拖动滑块或输入数字，结果即时更新。',
+  sumPrice:'售价',sumBroker:'中介费',sumSeller:'到手款',
+  hPrice:'售价',ariaPriceSlider:'售价滑块',ariaPriceInput:'售价（欧元）',ariaChart0:'不同售价下扣除费用和税后的到手款',chart0Note:'圆点即上方的售价。点一下图表，可查看任意售价的数字。',
+  hTiers:'中介佣金分档',t1Label:'第一分界点',t2Label:'第二分界点',tier:'第{n}档',ariaRate:'第{n}档中介费率（%）',tierNote:'每档费率只适用于落在该档内的那部分售价。',
+  hFees:'计入的费用',vatCheck:'卖方费用含23%增值税',legalCheck:'计入律师费',s1Label:'第二分界点以下的律师费率',s2Label:'第二分界点以上的律师费率',
+  hTax:'资本利得税（葡萄牙）',taxCheck:'计入资本利得税（估算）',buyLabel:'购入价',buyHint:'2019年契据所载',coefLabel:'通胀系数',coefHint:'2019年购入、2026年出售 = 1.20',buyCostsLabel:'2019年购入时的费用',buyCostsHint:'IMT、印花税、公证费（如知道）',otherLabel:'当年其他葡萄牙应税收入',otherHint:'没有则填0',deductCheck:'本次出售的中介费和律师费从利得中扣除',
+  stProposed:'新方案中介费 · 不含增值税',stOriginal:'原方案5% · 同一售价',stCgt:'资本利得税 · 估算',stSeller:'到手款 · 新方案',
+  hBreakdown:'售价去向',hCosts:'不同售价下的卖方总费用',costsNote:'中介费、律师费、增值税和资本利得税合计。线条拐弯处就是开始交税的地方。',ariaChart2:'不同售价下的卖方总费用（含费用、增值税和资本利得税）',
+  hBroker:'不同售价下的中介费',ariaChart:'不同售价下的中介费：三档方案与原来固定5%的比较',chartNote:'点一下或拖动图表，可查看数字。',
+  hStacks:'各档贡献的中介费',ariaStacks:'三档各自贡献的中介费，与原方案比较',
+  hRef:'和参照售价相比，双方是否都多赚？',refLabel:'参照售价',refHint:'原方案：中介5% + ',refLegalOn:'律师1%',refLegalOff:'无律师费',thScenario:'情形',thBroker:'中介所得¹',thSeller:'到手款²',
+  foot:'¹ 中介所得不含增值税，也不含中介之间的分成。² 到手款已扣除所选的专业费用、增值税，以及（开启时）估算的资本利得税。较高费率只适用于各自档内的部分。律师费：开启时，新方案按分档费率，原方案按固定1%。资本利得税：利得（售价 − 购入价 × 通胀系数 − 购入费用 − 出售费用）的一半，按2026年IRS税率（12.5%–48%，应税收入超过€80,000另加团结附加税）以单身申报计算。仅为估算，以会计师的计算为准。不含其他费用及已预付款项。',
+  reset:'恢复初始数字',
+  err:'请输入正数价格，且第二分界点须高于第一分界点。费率须在0%到100%之间；税务数字不能为负。',
+  upTo:'{a}以下',above:'{a}以上',part:'售价中{a} → 中介费{b}',effective:'实际中介费率{r}%',feeLess:'比原方案中介费少{a}',feeMore:'比原方案中介费多{a}',
+  taxBasis:'调整后购入成本：{buy} × {coef}{costs} = {total}。超出部分为利得，其中一半按2026年IRS税率计税。',taxBasisCosts:' + 费用{c}',
+  cgtOff:'未计入',cgtNone:'此售价下没有利得，不用交税',cgtGain:'利得{g} · 一半计税 · 约占利得的{r}%',sellerNoteTax:'已扣除费用、增值税和资本利得税',sellerNoteNoTax:'已扣除费用和增值税 · 未扣税',
+  taxStartOff:'资本利得税未开启。',taxStartNever:'按目前数字，任何售价都不用交资本利得税。',taxStartAt:'按新方案的费用，售价超过约{a}才开始交资本利得税。低于这个价格，调整后的购入成本加上出售费用会抵消利得。',
+  bdPrice:'售价',bdBroker:'中介费（新方案）',bdLegal:'律师费',bdVat:'上述费用的23%增值税',bdTax:'资本利得税（估算）',bdKeep:'到手款',
+  rowRef:'原方案，售价{a}（参照）',rowOrig:'原方案，售价{a}',rowProp:'新方案，售价{a}',
+  winBoth:'双方都比参照售价多赚。',winNeither:'双方都不比参照售价少。',winNot:'尚未做到双方都比参照售价多赚。',winTail:'中介{b} · 卖方{s}。',
+  matchAt:'售价达到{a}时，中介费与参照中介费持平。',matchNever:'按目前费率，中介费在任何售价下都追不上参照中介费。',needed:'在当前售价下，第三档需要{r}%才能持平。',
+  keyTier:'第{n}档 {a}',stackProp:'新方案 · 三档',stackOrig:'原方案 · 固定5%',chartNA:'图表无法显示；上面的数字仍然有效。',
+  axisX:'售价（€）',yKeeps:'到手款（€）',yCosts:'卖方费用（€）',yBroker:'中介费（€）',taxStarts:'开始交税',legProp:'新方案（三档）',legOrig:'原方案（固定5%）',
+  tipSale:'售价{a}',tipKeeps:'到手款：{a}',tipFees:'费用＋增值税：{a}',tipTax:'资本利得税：{a}',tipProp:'新方案：费用{c}{t}，到手{k}',tipOrig:'原方案：费用{c}{t}，到手{k}',tipTaxPart:'（含税{a}）',tipPropBroker:'新方案中介费：{a}',tipOrig5:'原方案5%：{a}'
+}};
+const langKey='three-tier-sale-calculator-lang';
+let lang=(()=>{try{const v=localStorage.getItem(langKey);if(v==='en'||v==='zh')return v}catch(e){}return 'zh'})();
+function t(key,vars={}){return String(I18N[lang][key]??I18N.en[key]).replace(/\{(\w+)\}/g,(_,v)=>vars[v]??'')}
 const colors=['var(--viz-series-1)','var(--viz-series-2)','var(--viz-series-3)'];
 const fields=['price','price-number','t1','t2','r1','r1-number','r2','r2-number','r3','r3-number','vat','legal','s1','s2','tax','buy','coef','buycosts','other','deduct','reference'],storeKey='three-tier-sale-calculator-v2';
 // 2026 IRS general rates (art. 68.º CIRS): [upper bound of bracket, marginal rate %]. Source: Portal das Finanças, "Taxas aplicáveis 2026".
@@ -280,52 +348,59 @@ function catchup(target,s){let start=0,amount=0;for(let i=0;i<3;i++){const end=[
 function save(){try{const v={};fields.forEach(id=>{const el=q(id);v[id]=el.type==='checkbox'?el.checked:el.value});localStorage.setItem(storeKey,JSON.stringify(v))}catch(e){}}
 function restore(){try{const v=JSON.parse(localStorage.getItem(storeKey)||'null');if(!v)return;fields.forEach(id=>{if(!(id in v))return;const el=q(id);if(el.type==='checkbox')el.checked=!!v[id];else{if(el.type==='range'&&Number(v[id])>Number(el.max))el.max=String(v[id]);el.value=v[id]}})}catch(e){}}
 function reset(){fields.forEach(id=>{const el=q(id);if(el.type==='checkbox')el.checked=el.defaultChecked;else{if(el.type==='range')el.max=el.getAttribute('max');el.value=el.defaultValue}});try{localStorage.removeItem(storeKey)}catch(e){}hideTip();render()}
+// Fill every static label for the current language, then redraw the live figures.
+function applyLang(){
+document.documentElement.lang=lang==='zh'?'zh-Hans':'en';document.title=t('docTitle');
+root.querySelectorAll('[data-i18n]').forEach(el=>el.textContent=t(el.dataset.i18n,el.dataset));
+root.querySelectorAll('[data-i18n-aria]').forEach(el=>el.setAttribute('aria-label',t(el.dataset.i18nAria,el.dataset)));
+root.querySelectorAll('[data-lang]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.lang===lang)));
+root.querySelectorAll('.legend-series').forEach(b=>b.lastChild.textContent=t(b.dataset.key));
+hideTip();render();
+}
 function render(){
 state=get();const s=state;
 const valid=[s.p,s.t1,s.t2,s.ref,s.s1,s.s2,s.buy,s.coef,s.buyCosts,s.other,...s.rates].every(Number.isFinite)&&s.p>0&&s.ref>0&&s.t1>0&&s.t2>s.t1&&s.rates.every(r=>r>=0&&r<=1)&&s.s1>=0&&s.s2>=0&&s.buy>=0&&s.coef>0&&s.buyCosts>=0&&s.other>=0;
-q('error').hidden=valid;if(!valid){q('error').textContent='Enter positive prices and a second threshold greater than the first. Rates must be between 0% and 100%; tax inputs cannot be negative.';q('error').scrollIntoView({block:'nearest'});return}
-q('price-label').textContent=fmt(s.p);q('band1').textContent='up to '+fmt(s.t1);q('band2').textContent=fmt(s.t1)+'–'+fmt(s.t2);q('band3').textContent='above '+fmt(s.t2);
+q('error').hidden=valid;if(!valid){q('error').textContent=t('err');q('error').scrollIntoView({block:'nearest'});return}
+q('price-label').textContent=fmt(s.p);q('band1').textContent=t('upTo',{a:fmt(s.t1)});q('band2').textContent=fmt(s.t1)+'–'+fmt(s.t2);q('band3').textContent=t('above',{a:fmt(s.t2)});
 const parts=portions(s.p,s),tierFees=parts.map((v,i)=>v*s.rates[i]),b=broker(s.p,s),old=s.p*.05,tax=cgt(s.p,s),keep=net(s.p,s),refB=s.ref*.05,refNet=net(s.ref,s,true),start=taxStart(s),g=gain(s.p,s);
-parts.forEach((v,i)=>q('part'+(i+1)).textContent=fmt(v)+' of price → '+fmt(tierFees[i])+' fee');
-q('proposed').textContent=fmt(b);q('original').textContent=fmt(old);q('seller').textContent=fmt(keep);q('effective').textContent=num.format(b/s.p*100)+'% effective broker rate';q('fee-delta').textContent=fmt(Math.abs(old-b))+(old>=b?' less':' more')+' than original broker fee';
+parts.forEach((v,i)=>q('part'+(i+1)).textContent=t('part',{a:fmt(v),b:fmt(tierFees[i])}));
+q('proposed').textContent=fmt(b);q('original').textContent=fmt(old);q('seller').textContent=fmt(keep);q('effective').textContent=t('effective',{r:num.format(b/s.p*100)});q('fee-delta').textContent=t(old>=b?'feeLess':'feeMore',{a:fmt(Math.abs(old-b))});
 q('sum-price').textContent=fmt(s.p);q('sum-broker').textContent=fmt(b);q('sum-seller').textContent=fmt(keep);
-q('legal-controls').hidden=!s.legal;q('reference-legal').textContent=s.legal?'1% solicitor':'no solicitor fee';
+q('legal-controls').hidden=!s.legal;q('reference-legal').textContent=t(s.legal?'refLegalOn':'refLegalOff');
 // Capital gains tax
 q('tax-controls').hidden=!s.tax;
-q('tax-basis').textContent='Adjusted purchase cost: '+fmt(s.buy)+' × '+num.format(s.coef)+(s.buyCosts?' + '+fmt(s.buyCosts)+' costs':'')+' = '+fmt(s.buy*s.coef+s.buyCosts)+'. Half of any gain above that is taxed at the 2026 IRS rates.';
+q('tax-basis').textContent=t('taxBasis',{buy:fmt(s.buy),coef:num.format(s.coef),costs:s.buyCosts?t('taxBasisCosts',{c:fmt(s.buyCosts)}):'',total:fmt(s.buy*s.coef+s.buyCosts)});
 q('cgt').textContent=s.tax?fmt(tax):'—';
-q('cgt-note').textContent=!s.tax?'Not included':g<=0?'No gain at this price, so no tax':'Gain '+fmt(g)+' · half taxed · '+num.format(tax/g*100)+'% of the gain';
-q('seller-note').textContent=s.tax?'After fees, VAT and capital gains tax':'After fees and VAT · before tax';
-q('tax-start').textContent=!s.tax?'Capital gains tax is switched off.':start===null?'No capital gains tax at any sale price with these inputs.':'With the proposed fees, capital gains tax starts above a sale price of about '+fmt(Math.ceil(start/1000)*1000)+'. Below that, the adjusted purchase cost and sale fees cancel out the gain.';
+q('cgt-note').textContent=!s.tax?t('cgtOff'):g<=0?t('cgtNone'):t('cgtGain',{g:fmt(g),r:num.format(tax/g*100)});
+q('seller-note').textContent=t(s.tax?'sellerNoteTax':'sellerNoteNoTax');
+q('tax-start').textContent=!s.tax?t('taxStartOff'):start===null?t('taxStartNever'):t('taxStartAt',{a:fmt(Math.ceil(start/1000)*1000)});
 const legalFee=legal(s.p,s),vatAmt=(b+legalFee)*(s.vat-1);
-q('breakdown').innerHTML=line('Sale price',fmt(s.p),'lead')+line('Broker fee (proposed tiers)','−'+fmt(b))+(s.legal?line('Solicitor fee','−'+fmt(legalFee)):'')+(s.vat>1?line('VAT 23% on those fees','−'+fmt(vatAmt)):'')+(s.tax?line('Capital gains tax (estimate)',tax>0?'−'+fmt(tax):fmt(0)):'')+line('Seller keeps',fmt(keep),'total');
-q('results').innerHTML=row('Original at '+fmt(s.ref)+' (reference)',refB,refNet)+row('Original at '+fmt(s.p),old,net(s.p,s,true))+row('Proposed at '+fmt(s.p),b,keep,'highlight');
+q('breakdown').innerHTML=line(t('bdPrice'),fmt(s.p),'lead')+line(t('bdBroker'),'−'+fmt(b))+(s.legal?line(t('bdLegal'),'−'+fmt(legalFee)):'')+(s.vat>1?line(t('bdVat'),'−'+fmt(vatAmt)):'')+(s.tax?line(t('bdTax'),tax>0?'−'+fmt(tax):fmt(0)):'')+line(t('bdKeep'),fmt(keep),'total');
+q('results').innerHTML=row(t('rowRef',{a:fmt(s.ref)}),refB,refNet)+row(t('rowOrig',{a:fmt(s.p)}),old,net(s.p,s,true))+row(t('rowProp',{a:fmt(s.p)}),b,keep,'highlight');
 const gainB=b-refB,gainS=keep-refNet,both=gainB>.005&&gainS>.005,neither=gainB>=-.005&&gainS>=-.005;
 q('win').className=both||neither?'good':'bad';
-q('win').textContent=(both?'Both earn more than the reference sale. ':neither?'Neither earns less than the reference sale. ':'Not yet a gain for both versus the reference sale. ')+'Broker '+signed(Math.abs(gainB)<.005?0:gainB)+' · Seller '+signed(Math.abs(gainS)<.005?0:gainS)+'.';
+q('win').textContent=t(both?'winBoth':neither?'winNeither':'winNot')+t('winTail',{b:signed(Math.abs(gainB)<.005?0:gainB),s:signed(Math.abs(gainS)<.005?0:gainS)});
 const cross=catchup(refB,s),baseFee=tierFees[0]+tierFees[1],needed=parts[2]>0?Math.max(0,(refB-baseFee)/parts[2]*100):null;
-q('match').textContent='Broker matches the reference fee '+(cross===null?'at no finite sale price with these rates.':'at '+fmt(cross)+'.')+(needed!==null?' At the selected price, tier 3 would need '+num.format(needed)+'% to match it.':'');
-const scale=Math.max(b,old,1),keys=tierFees.map((v,i)=>'<span><span class="key-dot" style="background:'+colors[i]+'"></span>Tier '+(i+1)+' '+fmt(v)+'</span>').join('');
-q('stacks').innerHTML='<div><div class="stack-label"><span>Proposed · three tiers</span><span class="tabular-nums">'+fmt(b)+'</span></div><div class="stack-track">'+tierFees.map((v,i)=>'<div class="stack-segment" style="background:'+colors[i]+';width:'+(v/scale*100)+'%"></div>').join('')+'</div><div class="stack-key text-small">'+keys+'</div></div><div><div class="stack-label"><span>Original · flat 5%</span><span class="tabular-nums">'+fmt(old)+'</span></div><div class="stack-track"><div class="stack-segment" style="background:var(--viz-series-4);width:'+(old/scale*100)+'%"></div></div></div>';
+q('match').textContent=(cross===null?t('matchNever'):t('matchAt',{a:fmt(cross)}))+(needed!==null?t('needed',{r:num.format(needed)}):'');
+const scale=Math.max(b,old,1),keys=tierFees.map((v,i)=>'<span><span class="key-dot" style="background:'+colors[i]+'"></span>'+t('keyTier',{n:i+1,a:fmt(v)})+'</span>').join('');
+q('stacks').innerHTML='<div><div class="stack-label"><span>'+t('stackProp')+'</span><span class="tabular-nums">'+fmt(b)+'</span></div><div class="stack-track">'+tierFees.map((v,i)=>'<div class="stack-segment" style="background:'+colors[i]+';width:'+(v/scale*100)+'%"></div>').join('')+'</div><div class="stack-key text-small">'+keys+'</div></div><div><div class="stack-label"><span>'+t('stackOrig')+'</span><span class="tabular-nums">'+fmt(old)+'</span></div><div class="stack-track"><div class="stack-segment" style="background:var(--viz-series-4);width:'+(old/scale*100)+'%"></div></div></div>';
 save();drawAll();
 }
 function hideTip(){pinned=false;q('tooltip').hidden=true;if(typeof d3!=='undefined')d3.select(root).selectAll('[data-chart-hover-guide],[data-chart-hover-marker]').attr('visibility','hidden')}
 // Chart definitions: each series is a function of sale price.
 function specs(s){
-const proposedColor='var(--viz-series-1)',originalColor='var(--viz-series-4)',start=taxStart(s);
+const proposedColor='var(--viz-series-1)',originalColor='var(--viz-series-4)',start=taxStart(s),taxMarks=start!==null&&start>0?[{x:start,label:t('taxStarts')}]:[],sale=p=>'<div><strong>'+t('tipSale',{a:fmt(p)})+'</strong></div>',div=h=>'<div>'+h+'</div>',taxPart=(p,old)=>s.tax?t('tipTaxPart',{a:fmt(cgt(p,s,old))}):'';
 return {
-  chart0:{label:'Seller keeps (€)',height:200,series:[{name:'Seller keeps',color:'var(--positive)',f:p=>net(p,s)}],
-    marks:start!==null&&start>0?[{x:start,label:'Tax starts'}]:[],
-    tip:p=>'<div><strong>'+fmt(p)+' sale</strong></div><div>Seller keeps: '+fmt(net(p,s))+'</div><div>Fees + VAT: '+fmt(fees(p,s))+'</div>'+(s.tax?'<div>Capital gains tax: '+fmt(cgt(p,s))+'</div>':'')},
-  chart2:{label:'Seller costs (€)',series:[{name:'Proposed tiers',color:proposedColor,f:p=>p-net(p,s)},{name:'Original flat 5%',color:originalColor,dash:'6 4',f:p=>p-net(p,s,true)}],
-    marks:start!==null&&start>0?[{x:start,label:'Tax starts'}]:[],
-    tip:p=>'<div><strong>'+fmt(p)+' sale</strong></div>'+(visible.chart2[0]?'<div>Proposed: costs '+fmt(p-net(p,s))+(s.tax?' (tax '+fmt(cgt(p,s))+')':'')+', keeps '+fmt(net(p,s))+'</div>':'')+(visible.chart2[1]?'<div>Original: costs '+fmt(p-net(p,s,true))+(s.tax?' (tax '+fmt(cgt(p,s,true))+')':'')+', keeps '+fmt(net(p,s,true))+'</div>':'')},
-  chart:{label:'Broker fee (€)',series:[{name:'Proposed tiers',color:proposedColor,f:p=>broker(p,s)},{name:'Original flat 5%',color:originalColor,dash:'6 4',f:p=>p*.05}],marks:[],
-    tip:p=>'<div><strong>'+fmt(p)+' sale</strong></div>'+(visible.chart[0]?'<div>Proposed broker: '+fmt(broker(p,s))+'</div>':'')+(visible.chart[1]?'<div>Original 5%: '+fmt(p*.05)+'</div>':'')}
+  chart0:{label:t('yKeeps'),height:200,series:[{color:'var(--positive)',f:p=>net(p,s)}],marks:taxMarks,
+    tip:p=>sale(p)+div(t('tipKeeps',{a:fmt(net(p,s))}))+div(t('tipFees',{a:fmt(fees(p,s))}))+(s.tax?div(t('tipTax',{a:fmt(cgt(p,s))})):'')},
+  chart2:{label:t('yCosts'),series:[{color:proposedColor,f:p=>p-net(p,s)},{color:originalColor,dash:'6 4',f:p=>p-net(p,s,true)}],marks:taxMarks,
+    tip:p=>sale(p)+(visible.chart2[0]?div(t('tipProp',{c:fmt(p-net(p,s)),t:taxPart(p,false),k:fmt(net(p,s))})):'')+(visible.chart2[1]?div(t('tipOrig',{c:fmt(p-net(p,s,true)),t:taxPart(p,true),k:fmt(net(p,s,true))})):'')},
+  chart:{label:t('yBroker'),series:[{color:proposedColor,f:p=>broker(p,s)},{color:originalColor,dash:'6 4',f:p=>p*.05}],marks:[],
+    tip:p=>sale(p)+(visible.chart[0]?div(t('tipPropBroker',{a:fmt(broker(p,s))})):'')+(visible.chart[1]?div(t('tipOrig5',{a:fmt(p*.05)})):'')}
 };
 }
-function drawAll(){if(typeof d3==='undefined'){['chart0','chart','chart2'].forEach(id=>q(id+'-wrap').textContent='Chart unavailable; live figures remain available.');return}if(!state)return;const s=state,sp=specs(s);
-// Shared x range so both charts line up; include where tax starts if it is nearby.
+function drawAll(){if(typeof d3==='undefined'){['chart0','chart','chart2'].forEach(id=>q(id+'-wrap').textContent=t('chartNA'));return}if(!state)return;const s=state,sp=specs(s);
+// Shared x range so the charts line up; include where tax starts if it is nearby.
 const start=taxStart(s),anchors=[s.p,s.ref,s.t1,s.t2];if(start!==null&&start>0&&start<Math.max(...anchors)*1.4)anchors.push(start);
 const extent=d3.extent(anchors),pad=Math.max(50000,(extent[1]-extent[0])*.3),lo=Math.max(0,extent[0]-pad),hi=extent[1]+pad;
 const prices=Array.from(new Set([...d3.range(lo,hi,(hi-lo)/200),hi,s.t1,s.t2,s.p,s.ref,...(start?[start]:[])])).filter(v=>v>=lo&&v<=hi).sort((a,b)=>a-b);
@@ -342,7 +417,7 @@ svg.append('defs').append('clipPath').attr('id',clip).append('rect').attr('x',le
 const yAxis=svg.append('g').attr('transform','translate('+left+',0)').call(d3.axisLeft(y).ticks(4).tickFormat(k).tickSize(0));yAxis.select('.domain').remove();yAxis.selectAll('text').attr('dx',-5);
 y.ticks(4).forEach(v=>svg.append('line').attr('x1',left).attr('x2',right).attr('y1',y(v)).attr('y2',y(v)).attr('stroke','var(--border)').attr('stroke-width',.7));
 const xAxis=d3.axisBottom(x).ticks(5).tickFormat(k).tickSize(0);if(narrow)xAxis.ticks(3);const xa=svg.append('g').attr('transform','translate(0,'+bottom+')').call(xAxis);xa.select('.domain').remove();xa.selectAll('text').attr('dy','1.5em');
-svg.append('text').attr('x',(left+right)/2).attr('y',height-5).attr('text-anchor','middle').text('Sale price (€)');
+svg.append('text').attr('x',(left+right)/2).attr('y',height-5).attr('text-anchor','middle').text(t('axisX'));
 svg.append('text').attr('transform','translate(12,'+((top+bottom)/2)+') rotate(-90)').attr('text-anchor','middle').text(spec.label);
 const plot=svg.append('g').attr('clip-path','url(#'+clip+')');
 spec.marks.forEach(m=>{if(m.x<lo||m.x>hi)return;const mx=x(m.x);plot.append('line').attr('x1',mx).attr('x2',mx).attr('y1',top).attr('y2',bottom).attr('stroke','var(--negative)').attr('stroke-dasharray','3 3');svg.append('text').attr('class','mark-label').attr('x',mx+(mx>(left+right)/2?-4:4)).attr('y',top+13).attr('text-anchor',mx>(left+right)/2?'end':'start').text(m.label+' '+k(Math.ceil(m.x/1000)*1000))});
@@ -359,16 +434,18 @@ svg.append('rect').attr('x',left).attr('y',top).attr('width',right-left).attr('h
 xa.selectAll('text').each(function(){const b=this.getBoundingClientRect(),r=svgNode.getBoundingClientRect();if(b.left<r.left+4)d3.select(this).attr('text-anchor','start');if(b.right>r.right-4)d3.select(this).attr('text-anchor','end')});
 }
 function hideGuidesExcept(svgNode){d3.select(root).selectAll('svg').filter(function(){return this!==svgNode}).selectAll('[data-chart-hover-guide],[data-chart-hover-marker]').attr('visibility','hidden')}
-function legend(id,target){[['Proposed tiers',''],['Original flat 5%','original-swatch']].forEach((item,i)=>{const button=document.createElement('button');button.type='button';button.className='legend-series';button.setAttribute('aria-pressed','true');button.innerHTML='<span class="swatch '+item[1]+'"></span>'+item[0];button.addEventListener('click',()=>{visible[id][i]=!visible[id][i];button.setAttribute('aria-pressed',String(visible[id][i]));hideTip();drawAll()});q(target).appendChild(button)})}
+function legend(id,target){[['legProp',''],['legOrig','original-swatch']].forEach((item,i)=>{const button=document.createElement('button');button.type='button';button.className='legend-series';button.dataset.key=item[0];button.setAttribute('aria-pressed','true');button.innerHTML='<span class="swatch '+item[1]+'"></span><span></span>';button.addEventListener('click',()=>{visible[id][i]=!visible[id][i];button.setAttribute('aria-pressed',String(visible[id][i]));hideTip();drawAll()});q(target).appendChild(button)})}
 legend('chart','legend');legend('chart2','legend2');
 function pair(slider,field){q(slider).addEventListener('input',()=>{q(field).value=q(slider).value;render()});q(field).addEventListener('input',()=>{const v=Number(q(field).value);if(Number.isFinite(v)){if(v>Number(q(slider).max))q(slider).max=String(v);q(slider).value=String(v)}render()})}
 pair('price','price-number');for(let i=1;i<=3;i++)pair('r'+i,'r'+i+'-number');['t1','t2','s1','s2','reference','vat','legal','tax','buy','coef','buycosts','other','deduct'].forEach(id=>q(id).addEventListener('input',render));
 q('reset').addEventListener('click',reset);
+root.querySelectorAll('[data-lang]').forEach(b=>b.addEventListener('click',()=>{lang=b.dataset.lang;try{localStorage.setItem(langKey,lang)}catch(e){}applyLang()}));
 // Tapping anywhere outside a chart dismisses a pinned tooltip.
 document.addEventListener('pointerdown',e=>{if(pinned&&!e.target.closest('svg'))hideTip()});
-root.saleCalculator={get,broker,legal,fees,irs,gain,cgt,net,taxStart,portions,catchup,render};restore();render();
+root.saleCalculator={get,broker,legal,fees,irs,gain,cgt,net,taxStart,portions,catchup,render,setLang:l=>{lang=l;applyLang()}};restore();applyLang();
 const ro=new ResizeObserver(()=>drawAll());ro.observe(q('chart-wrap'));
 })();
 </script>
 </body>
+
 </html>
