@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#f6f7f9" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#16181c" media="(prefers-color-scheme: dark)">
+<title>Three-Tier Sale Calculator</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232f6fe4'/%3E%3Crect x='7' y='18' width='4' height='7' fill='white'/%3E%3Crect x='14' y='13' width='4' height='12' fill='white'/%3E%3Crect x='21' y='7' width='4' height='18' fill='white'/%3E%3C/svg%3E">
+<style>
+:root{
+  color-scheme:light;
+  --background:#f6f7f9;--card:#ffffff;--foreground:#16181c;--muted-foreground:#5c6370;
+  --muted:#e9ecf1;--border:#dde1e7;--input:#ffffff;--input-border:#c6ccd6;
+  --primary:#2f6fe4;--primary-foreground:#ffffff;
+  --popover:#16181c;--popover-foreground:#ffffff;
+  --positive:#137a3d;--positive-bg:#e5f5eb;--negative:#b3261e;--negative-bg:#fbe9e7;
+  --viz-series-1:#2f6fe4;--viz-series-2:#e97b2c;--viz-series-3:#2f9e55;--viz-series-4:#d14d97;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  color-scheme:dark;
+  --background:#16181c;--card:#1f2228;--foreground:#eef0f3;--muted-foreground:#a3aab5;
+  --muted:#2c3038;--border:#343943;--input:#16181c;--input-border:#454b57;
+  --primary:#6b9cf5;--primary-foreground:#0d1220;
+  --popover:#eef0f3;--popover-foreground:#16181c;
+  --positive:#6fd497;--positive-bg:#183424;--negative:#f2948c;--negative-bg:#3b1e1c;
+  --viz-series-1:#6b9cf5;--viz-series-2:#f59a56;--viz-series-3:#74d58b;--viz-series-4:#f08fc0;
+}}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --background:#16181c;--card:#1f2228;--foreground:#eef0f3;--muted-foreground:#a3aab5;
+  --muted:#2c3038;--border:#343943;--input:#16181c;--input-border:#454b57;
+  --primary:#6b9cf5;--primary-foreground:#0d1220;
+  --popover:#eef0f3;--popover-foreground:#16181c;
+  --positive:#6fd497;--positive-bg:#183424;--negative:#f2948c;--negative-bg:#3b1e1c;
+  --viz-series-1:#6b9cf5;--viz-series-2:#f59a56;--viz-series-3:#74d58b;--viz-series-4:#f08fc0;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--background);color:var(--foreground);font:16px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
+.tabular-nums,input[type=number]{font-variant-numeric:tabular-nums}
+#tier-sale-lab{position:relative;max-width:880px;margin:0 auto;padding:0 16px calc(32px + env(safe-area-inset-bottom));display:grid;gap:16px}
+#tier-sale-lab [hidden]{display:none!important}
+h1,h2,h3{margin:0;line-height:1.2}
+h1{font-size:1.5rem}
+h2{font-size:1.1rem}
+.intro{padding-top:20px}
+.intro p{margin:6px 0 0;color:var(--muted-foreground)}
+
+/* Sticky summary so the key numbers stay visible while adjusting inputs */
+.summary{position:sticky;top:0;z-index:3;margin:0 -16px;padding:10px 16px calc(10px);background:color-mix(in srgb,var(--background) 92%,transparent);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid var(--border);display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.summary div{min-width:0}
+.summary .k{display:block;font-size:.75rem;color:var(--muted-foreground);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.summary .v{display:block;font-weight:650;font-size:1.05rem;white-space:nowrap}
+
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;display:grid;gap:14px;min-width:0}
+.form-label{display:grid;gap:6px;font-weight:550;font-size:.95rem}
+.hint{font-weight:400;color:var(--muted-foreground);font-size:.85rem}
+.text-small{font-size:.875rem;color:var(--muted-foreground)}
+.text-destructive{color:var(--negative);background:var(--negative-bg);padding:10px 12px;border-radius:10px}
+.form-control{width:100%;min-width:0;font:inherit;font-size:16px;color:var(--foreground);background:var(--input);border:1px solid var(--input-border);border-radius:10px;padding:10px 12px;min-height:44px}
+.form-control:focus{outline:2px solid var(--primary);outline-offset:1px;border-color:transparent}
+.euro{position:relative;display:block}
+.euro::before{content:"€";position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted-foreground);pointer-events:none}
+.euro .form-control{padding-left:28px}
+
+/* Range sliders with large touch-friendly thumbs */
+.form-range{-webkit-appearance:none;appearance:none;width:100%;height:44px;background:transparent;margin:0;cursor:pointer;touch-action:pan-y}
+.form-range::-webkit-slider-runnable-track{height:6px;border-radius:3px;background:var(--muted)}
+.form-range::-moz-range-track{height:6px;border-radius:3px;background:var(--muted)}
+.form-range::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;border-radius:50%;background:var(--primary);border:3px solid var(--card);box-shadow:0 1px 4px rgb(0 0 0/.3);margin-top:-11px}
+.form-range::-moz-range-thumb{width:24px;height:24px;border-radius:50%;background:var(--primary);border:3px solid var(--card);box-shadow:0 1px 4px rgb(0 0 0/.3)}
+.form-range:focus-visible{outline:2px solid var(--primary);outline-offset:2px;border-radius:6px}
+
+.price-value{font-size:1.75rem;font-weight:700}
+.price-row{display:grid;grid-template-columns:minmax(0,1fr) 150px;align-items:center;gap:16px}
+.thresholds{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.tiers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.tier{display:grid;gap:4px;padding:12px;border-radius:10px;background:color-mix(in srgb,var(--muted) 55%,transparent);border-left:4px solid var(--c)}
+.tier .form-label{font-size:.9rem}
+.rate-row{display:grid;grid-template-columns:minmax(0,1fr) 96px;gap:10px;align-items:center}
+.rate-number{display:flex;align-items:center;gap:5px;min-width:0}
+.settings{display:grid;gap:4px}
+.form-check{display:flex;align-items:center;gap:12px;min-height:44px;cursor:pointer}
+.form-check-input{width:22px;height:22px;margin:0;accent-color:var(--primary);flex:none}
+
+.viz-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.viz-stat{gap:4px}
+.viz-stat-value{font-size:1.6rem;font-weight:700}
+.viz-stat.primary{border-color:var(--primary);box-shadow:inset 0 0 0 1px var(--primary)}
+
+.viz-row{display:flex;flex-wrap:wrap;gap:8px 20px}
+#ts-chart{display:block;width:100%;overflow:visible}
+#ts-chart-wrap{min-width:0}
+.chart-line{fill:none;stroke-width:2.5}
+svg text{fill:var(--foreground);font-size:12px}
+.legend-series{display:inline-flex;align-items:center;gap:8px;background:transparent;border:0;color:var(--foreground);padding:8px 0;min-height:44px;font:inherit;font-size:.9rem;cursor:pointer}
+.legend-series[aria-pressed="false"]{opacity:.45}
+.swatch{display:inline-block;width:22px;height:3px;background:var(--viz-series-1)}
+.original-swatch{background:repeating-linear-gradient(90deg,var(--viz-series-4) 0 6px,transparent 6px 10px)}
+#ts-stacks{display:grid;gap:14px}
+.stack-label{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:.95rem}
+.stack-track{display:flex;height:24px;background:var(--muted);margin-top:6px;border-radius:6px;overflow:hidden}
+.stack-segment{height:100%;min-width:0;transition:width .18s ease}
+.stack-key{display:flex;gap:6px 16px;flex-wrap:wrap;margin-top:8px}
+.key-dot{display:inline-block;width:10px;height:10px;margin-right:6px;border-radius:2px}
+
+.table-responsive{overflow-x:auto;margin:0 -4px}
+table{width:100%;border-collapse:collapse;font-size:.95rem}
+th,td{padding:10px 4px;border-bottom:1px solid var(--border);text-align:left;vertical-align:top}
+th{font-size:.8rem;color:var(--muted-foreground);font-weight:600}
+.text-end{text-align:right;white-space:nowrap}
+tr.highlight td{font-weight:650}
+#ts-win{padding:12px 14px;border-radius:10px;font-weight:550}
+#ts-win.good{background:var(--positive-bg);color:var(--positive)}
+#ts-win.bad{background:var(--negative-bg);color:var(--negative)}
+.foot{line-height:1.5}
+.actions{display:flex;justify-content:center}
+.btn{font:inherit;font-size:.95rem;min-height:44px;padding:10px 20px;border-radius:999px;border:1px solid var(--input-border);background:var(--card);color:var(--foreground);cursor:pointer}
+.btn:active{background:var(--muted)}
+#ts-tooltip{position:absolute;pointer-events:none;z-index:4;background:var(--popover);color:var(--popover-foreground);padding:10px 12px;border-radius:8px;font-size:.85rem;max-width:240px;box-shadow:0 4px 14px rgb(0 0 0/.2)}
+
+@media(max-width:620px){
+  h1{font-size:1.3rem}
+  .tiers{grid-template-columns:1fr;gap:12px}
+  .thresholds{grid-template-columns:1fr;gap:12px}
+  .price-row{grid-template-columns:minmax(0,1fr) 128px;gap:12px}
+  .summary .v{font-size:.95rem}
+  .viz-stat-value{font-size:1.4rem}
+}
+@media(prefers-reduced-motion:reduce){.stack-segment{transition:none}}
+</style>
+</head>
+<body>
+<div id="tier-sale-lab">
+  <header class="intro">
+    <h1>Three-tier sale calculator</h1>
+    <p>Compare the proposed tiered broker fee with the original flat 5%. Move the sliders or type a number — everything updates instantly.</p>
+  </header>
+
+  <div class="summary" aria-live="polite">
+    <div><span class="k">Sale price</span><span class="v tabular-nums" id="ts-sum-price"></span></div>
+    <div><span class="k">Broker fee</span><span class="v tabular-nums" id="ts-sum-broker"></span></div>
+    <div><span class="k">Seller keeps</span><span class="v tabular-nums" id="ts-sum-seller"></span></div>
+  </div>
+
+  <section class="card">
+    <h2>Sale price</h2>
+    <div class="price-value tabular-nums" id="ts-price-label"></div>
+    <div class="price-row">
+      <input id="ts-price" class="form-range" type="range" min="500000" max="1200000" step="1000" value="800000" aria-label="Sale price slider">
+      <span class="euro"><input id="ts-price-number" class="form-control" type="number" inputmode="numeric" aria-label="Sale price in euros" min="100000" max="3000000" step="1000" value="800000"></span>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Broker fee tiers</h2>
+    <div class="thresholds">
+      <label class="form-label">First threshold<span class="euro"><input id="ts-t1" class="form-control" type="number" inputmode="numeric" min="100000" max="2000000" step="10000" value="700000"></span></label>
+      <label class="form-label">Second threshold<span class="euro"><input id="ts-t2" class="form-control" type="number" inputmode="numeric" min="100001" max="2500000" step="10000" value="750000"></span></label>
+    </div>
+    <div id="ts-error" class="text-destructive" role="alert" hidden></div>
+    <div class="tiers">
+      <div class="tier" style="--c:var(--viz-series-1)"><label class="form-label" for="ts-r1">Tier 1 <span class="hint" id="ts-band1"></span></label><div class="rate-row"><input id="ts-r1" class="form-range" type="range" min="0" max="15" step="0.25" value="3.5"><label class="rate-number"><input id="ts-r1-number" class="form-control" type="number" inputmode="decimal" aria-label="Tier 1 brokerage rate percent" min="0" max="100" step="0.25" value="3.5">%</label></div><div class="text-small" id="ts-part1"></div></div>
+      <div class="tier" style="--c:var(--viz-series-2)"><label class="form-label" for="ts-r2">Tier 2 <span class="hint" id="ts-band2"></span></label><div class="rate-row"><input id="ts-r2" class="form-range" type="range" min="0" max="25" step="0.25" value="6"><label class="rate-number"><input id="ts-r2-number" class="form-control" type="number" inputmode="decimal" aria-label="Tier 2 brokerage rate percent" min="0" max="100" step="0.25" value="6">%</label></div><div class="text-small" id="ts-part2"></div></div>
+      <div class="tier" style="--c:var(--viz-series-3)"><label class="form-label" for="ts-r3">Tier 3 <span class="hint" id="ts-band3"></span></label><div class="rate-row"><input id="ts-r3" class="form-range" type="range" min="0" max="40" step="0.25" value="10"><label class="rate-number"><input id="ts-r3-number" class="form-control" type="number" inputmode="decimal" aria-label="Tier 3 brokerage rate percent" min="0" max="100" step="0.25" value="10">%</label></div><div class="text-small" id="ts-part3"></div></div>
+    </div>
+    <p class="text-small" style="margin:0">Each rate applies only to the part of the price inside its tier.</p>
+  </section>
+
+  <section class="card">
+    <h2>Fees to include</h2>
+    <div class="settings">
+      <label class="form-check"><input id="ts-vat" class="form-check-input" type="checkbox" checked><span>Include 23% VAT in seller costs</span></label>
+      <label class="form-check"><input id="ts-legal" class="form-check-input" type="checkbox" checked><span>Include solicitor fees</span></label>
+    </div>
+    <div id="ts-legal-controls" class="thresholds">
+      <label class="form-label">Solicitor rate below second threshold<span class="rate-number"><input id="ts-s1" class="form-control" type="number" inputmode="decimal" min="0" max="20" step="0.25" value="1.25">%</span></label>
+      <label class="form-label">Solicitor rate above second threshold<span class="rate-number"><input id="ts-s2" class="form-control" type="number" inputmode="decimal" min="0" max="20" step="0.25" value="2">%</span></label>
+    </div>
+  </section>
+
+  <div class="viz-grid" aria-live="polite">
+    <div class="card viz-stat"><div class="text-small">Proposed broker fee · before VAT</div><div class="viz-stat-value tabular-nums" id="ts-proposed"></div><div class="text-small" id="ts-effective"></div></div>
+    <div class="card viz-stat"><div class="text-small">Original 5% · same sale price</div><div class="viz-stat-value tabular-nums" id="ts-original"></div><div class="text-small" id="ts-fee-delta"></div></div>
+    <div class="card viz-stat primary"><div class="text-small">Seller proceeds · proposed fees</div><div class="viz-stat-value tabular-nums" id="ts-seller"></div><div class="text-small">Before tax and other expenses</div></div>
+  </div>
+
+  <section class="card">
+    <h2>Broker fee across sale prices</h2>
+    <div id="ts-legend" class="viz-row"></div>
+    <div id="ts-chart-wrap"><svg id="ts-chart" role="img" aria-label="Broker fee versus sale price, comparing marginal tiers with the original flat 5 percent"></svg></div>
+    <div class="text-small">Tap or drag on the chart to read values.</div>
+  </section>
+
+  <section class="card">
+    <h2>Fee contributed by each tier</h2>
+    <div id="ts-stacks" role="img" aria-label="Brokerage fee split across the three tiers compared with the original fee"></div>
+  </section>
+
+  <section class="card">
+    <h2>Do both earn more than at the reference sale?</h2>
+    <label class="form-label">Reference sale price <span class="hint">original 5% broker + <span id="ts-reference-legal">1% solicitor</span></span><span class="euro" style="max-width:260px"><input id="ts-reference" class="form-control" type="number" inputmode="numeric" min="100000" max="3000000" step="10000" value="750000"></span></label>
+    <div class="table-responsive"><table><thead><tr><th>Scenario</th><th class="text-end">Broker gets¹</th><th class="text-end">Seller keeps²</th></tr></thead><tbody id="ts-results"></tbody></table></div>
+    <div id="ts-win" aria-live="polite"></div>
+    <div id="ts-match" class="text-small"></div>
+  </section>
+
+  <div class="text-small foot">¹ Broker revenue excludes VAT and any agency split. ² Seller proceeds deduct selected professional fees and VAT only. Higher rates apply only within their tier. Solicitor fees: proposed marginal rates versus original flat 1% when enabled. Tax, other expenses and prior advances excluded.</div>
+  <div class="actions"><button type="button" class="btn" id="ts-reset">Reset to starting numbers</button></div>
+  <div id="ts-tooltip" role="tooltip" hidden></div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+(()=>{
+const root=document.getElementById('tier-sale-lab'),q=id=>root.querySelector('#ts-'+id),euro=new Intl.NumberFormat('en-IE',{style:'currency',currency:'EUR',maximumFractionDigits:0}),num=new Intl.NumberFormat('en-IE',{maximumFractionDigits:2}),fmt=v=>euro.format(v),signed=v=>(v>=0?'+':'−')+fmt(Math.abs(v));
+const colors=['var(--viz-series-1)','var(--viz-series-2)','var(--viz-series-3)'];
+const fields=['price','price-number','t1','t2','r1','r1-number','r2','r2-number','r3','r3-number','vat','legal','s1','s2','reference'],storeKey='three-tier-sale-calculator-v1';
+let visible=[true,true],state,lastHover=null,pinned=false;
+const n=id=>Number(q(id).value);
+function get(){return {p:n('price-number'),t1:n('t1'),t2:n('t2'),rates:[n('r1-number')/100,n('r2-number')/100,n('r3-number')/100],s1:n('s1')/100,s2:n('s2')/100,vat:q('vat').checked?1.23:1,legal:q('legal').checked,ref:n('reference')}}
+function portions(p,s){return [Math.min(p,s.t1),Math.min(Math.max(p-s.t1,0),s.t2-s.t1),Math.max(p-s.t2,0)]}
+function broker(p,s){return portions(p,s).reduce((sum,v,i)=>sum+v*s.rates[i],0)}
+function legal(p,s,old=false){return !s.legal?0:old?p*.01:Math.min(p,s.t2)*s.s1+Math.max(p-s.t2,0)*s.s2}
+function net(p,s,old=false){return p-((old?p*.05:broker(p,s))+legal(p,s,old))*s.vat}
+function row(label,b,keep,cls){return '<tr'+(cls?' class="'+cls+'"':'')+'><td>'+label+'</td><td class="text-end">'+fmt(b)+'</td><td class="text-end">'+fmt(keep)+'</td></tr>'}
+function catchup(target,s){let start=0,amount=0;for(let i=0;i<3;i++){const end=[s.t1,s.t2,Infinity][i],rate=s.rates[i],capacity=(end-start)*rate;if(amount>=target)return start;if(rate>0&&amount+capacity>=target)return start+(target-amount)/rate;amount+=Number.isFinite(capacity)?capacity:0;start=end}return null}
+function save(){try{const v={};fields.forEach(id=>{const el=q(id);v[id]=el.type==='checkbox'?el.checked:el.value});localStorage.setItem(storeKey,JSON.stringify(v))}catch(e){}}
+function restore(){try{const v=JSON.parse(localStorage.getItem(storeKey)||'null');if(!v)return;fields.forEach(id=>{if(!(id in v))return;const el=q(id);if(el.type==='checkbox')el.checked=!!v[id];else{if(el.type==='range'&&Number(v[id])>Number(el.max))el.max=String(v[id]);el.value=v[id]}})}catch(e){}}
+function reset(){fields.forEach(id=>{const el=q(id);if(el.type==='checkbox')el.checked=el.defaultChecked;else{if(el.type==='range')el.max=el.getAttribute('max');el.value=el.defaultValue}});try{localStorage.removeItem(storeKey)}catch(e){}hideTip();render()}
+function render(){
+state=get();const s=state;
+const valid=[s.p,s.t1,s.t2,s.ref,s.s1,s.s2,...s.rates].every(Number.isFinite)&&s.p>0&&s.ref>0&&s.t1>0&&s.t2>s.t1&&s.rates.every(r=>r>=0&&r<=1)&&s.s1>=0&&s.s2>=0;
+q('error').hidden=valid;if(!valid){q('error').textContent='Enter positive prices and a second threshold greater than the first. Rates must be between 0% and 100%.';return}
+q('price-label').textContent=fmt(s.p);q('band1').textContent='up to '+fmt(s.t1);q('band2').textContent=fmt(s.t1)+'–'+fmt(s.t2);q('band3').textContent='above '+fmt(s.t2);
+const parts=portions(s.p,s),fees=parts.map((v,i)=>v*s.rates[i]),b=broker(s.p,s),old=s.p*.05,keep=net(s.p,s),refB=s.ref*.05,refNet=net(s.ref,s,true);
+parts.forEach((v,i)=>q('part'+(i+1)).textContent=fmt(v)+' of price → '+fmt(fees[i])+' fee');
+q('proposed').textContent=fmt(b);q('original').textContent=fmt(old);q('seller').textContent=fmt(keep);q('effective').textContent=num.format(b/s.p*100)+'% effective broker rate';q('fee-delta').textContent=fmt(Math.abs(old-b))+(old>=b?' less':' more')+' than original broker fee';
+q('sum-price').textContent=fmt(s.p);q('sum-broker').textContent=fmt(b);q('sum-seller').textContent=fmt(keep);
+q('legal-controls').hidden=!s.legal;q('reference-legal').textContent=s.legal?'1% solicitor':'no solicitor fee';
+q('results').innerHTML=row('Original at '+fmt(s.ref)+' (reference)',refB,refNet)+row('Original at '+fmt(s.p),old,net(s.p,s,true))+row('Proposed at '+fmt(s.p),b,keep,'highlight');
+const gainB=b-refB,gainS=keep-refNet,both=gainB>.005&&gainS>.005,neither=gainB>=-.005&&gainS>=-.005;
+q('win').className=both||neither?'good':'bad';
+q('win').textContent=(both?'Both earn more than the reference sale. ':neither?'Neither earns less than the reference sale. ':'Not yet a gain for both versus the reference sale. ')+'Broker '+signed(Math.abs(gainB)<.005?0:gainB)+' · Seller '+signed(Math.abs(gainS)<.005?0:gainS)+'.';
+const cross=catchup(refB,s),baseFee=fees[0]+fees[1],needed=parts[2]>0?Math.max(0,(refB-baseFee)/parts[2]*100):null;
+q('match').textContent='Broker matches the reference fee '+(cross===null?'at no finite sale price with these rates.':'at '+fmt(cross)+'.')+(needed!==null?' At the selected price, tier 3 would need '+num.format(needed)+'% to match it.':'');
+const scale=Math.max(b,old,1),keys=fees.map((v,i)=>'<span><span class="key-dot" style="background:'+colors[i]+'"></span>Tier '+(i+1)+' '+fmt(v)+'</span>').join('');
+q('stacks').innerHTML='<div><div class="stack-label"><span>Proposed · three tiers</span><span class="tabular-nums">'+fmt(b)+'</span></div><div class="stack-track">'+fees.map((v,i)=>'<div class="stack-segment" style="background:'+colors[i]+';width:'+(v/scale*100)+'%"></div>').join('')+'</div><div class="stack-key text-small">'+keys+'</div></div><div><div class="stack-label"><span>Original · flat 5%</span><span class="tabular-nums">'+fmt(old)+'</span></div><div class="stack-track"><div class="stack-segment" style="background:var(--viz-series-4);width:'+(old/scale*100)+'%"></div></div></div>';
+save();draw();
+}
+function hideTip(){pinned=false;q('tooltip').hidden=true;typeof d3!=='undefined'&&d3.select(q('chart')).selectAll('[data-chart-hover-guide],[data-chart-hover-marker]').attr('visibility','hidden')}
+function draw(){if(typeof d3==='undefined'){q('chart-wrap').textContent='Chart unavailable; live figures and tier amounts remain available.';return}const s=state;if(!s)return;
+const width=Math.max(280,q('chart-wrap').getBoundingClientRect().width),narrow=width<440,height=narrow?240:285,margin={left:narrow?56:70,right:12,top:16,bottom:53},svg=d3.select(q('chart')).attr('viewBox','0 0 '+width+' '+height).attr('height',height);
+svg.selectAll('*').remove();svg.append('title').text('Broker fee by sale price: marginal proposal and original flat 5 percent');
+const anchors=[s.p,s.ref,s.t1,s.t2],extent=d3.extent(anchors),pad=Math.max(50000,(extent[1]-extent[0])*.3),lo=Math.max(0,extent[0]-pad),hi=extent[1]+pad;
+const prices=Array.from(new Set([...d3.range(lo,hi,(hi-lo)/160),hi,s.t1,s.t2,s.p,s.ref])).filter(v=>v>=lo&&v<=hi).sort((a,b)=>a-b),data=prices.map(p=>({x:p,proposal:broker(p,s),original:p*.05}));
+const ys=data.flatMap(d=>[d.proposal,d.original]),yd=d3.extent(ys),yp=Math.max(1000,(yd[1]-yd[0])*.14);
+const x=d3.scaleLinear().domain([lo,hi]).range([margin.left+4,width-margin.right-4]),y=d3.scaleLinear().domain([Math.max(0,yd[0]-yp),yd[1]+yp]).nice().range([height-margin.bottom-4,margin.top+4]);
+const left=margin.left,right=width-margin.right,top=margin.top,bottom=height-margin.bottom;
+svg.append('rect').attr('x',left).attr('y',top).attr('width',right-left).attr('height',bottom-top).attr('fill','none').attr('stroke','var(--border)');
+svg.append('defs').append('clipPath').attr('id','ts-clip').append('rect').attr('x',left).attr('y',top).attr('width',right-left).attr('height',bottom-top);
+const yAxis=svg.append('g').attr('transform','translate('+left+',0)').call(d3.axisLeft(y).ticks(4).tickFormat(v=>'€'+num.format(v/1000)+'k').tickSize(0));yAxis.select('.domain').remove();yAxis.selectAll('text').attr('dx',-5);
+y.ticks(4).forEach(v=>svg.append('line').attr('x1',left).attr('x2',right).attr('y1',y(v)).attr('y2',y(v)).attr('stroke','var(--border)').attr('stroke-width',.7));
+const xAxis=d3.axisBottom(x).ticks(5).tickFormat(v=>'€'+num.format(v/1000)+'k').tickSize(0);if(narrow)xAxis.tickValues([lo,(lo+hi)/2,hi]);const xa=svg.append('g').attr('transform','translate(0,'+bottom+')').call(xAxis);xa.select('.domain').remove();xa.selectAll('text').attr('dy','1.5em');
+svg.append('text').attr('x',(left+right)/2).attr('y',height-5).attr('text-anchor','middle').text('Sale price (€)');
+svg.append('text').attr('transform','translate(12,'+((top+bottom)/2)+') rotate(-90)').attr('text-anchor','middle').text('Broker fee (€)');
+const plot=svg.append('g').attr('clip-path','url(#ts-clip)');
+['proposal','original'].forEach((key,i)=>{if(!visible[i])return;plot.append('path').datum(data).attr('class','chart-line').attr('stroke',i?'var(--viz-series-4)':'var(--viz-series-1)').attr('stroke-dasharray',i?'6 4':null).attr('d',d3.line().x(d=>x(d.x)).y(d=>y(d[key])));plot.append('circle').attr('cx',x(s.p)).attr('cy',y(i?s.p*.05:broker(s.p,s))).attr('r',5).attr('fill',i?'var(--viz-series-4)':'var(--viz-series-1)')});
+plot.append('line').attr('x1',x(s.p)).attr('x2',x(s.p)).attr('y1',top).attr('y2',bottom).attr('stroke','var(--border)');
+const guide=plot.append('line').attr('data-chart-hover-guide','').attr('y1',top).attr('y2',bottom).attr('stroke','var(--foreground)').attr('stroke-width',1).attr('visibility','hidden'),markers=[0,1].map(i=>plot.append('circle').attr('data-chart-hover-marker','').attr('r',5).attr('fill',i?'var(--viz-series-4)':'var(--viz-series-1)').attr('visibility','hidden'));
+const tooltip=q('tooltip');function hover(event){const point=d3.pointer(event,q('chart')),px=Math.max(left,Math.min(right,point[0])),price=x.invert(px);lastHover=price;guide.attr('x1',px).attr('x2',px).attr('visibility','visible');markers.forEach((m,i)=>m.attr('cx',px).attr('cy',y(i?price*.05:broker(price,s))).attr('visibility',visible[i]?'visible':'hidden'));tooltip.hidden=false;tooltip.innerHTML='<div><strong>'+fmt(price)+' sale</strong></div>'+(visible[0]?'<div>Proposed broker: '+fmt(broker(price,s))+'</div>':'')+(visible[1]?'<div>Original 5%: '+fmt(price*.05)+'</div>':'');const rr=root.getBoundingClientRect(),sr=q('chart').getBoundingClientRect(),tw=tooltip.offsetWidth;let tx=sr.left-rr.left+px+12;if(tx+tw>sr.right-rr.left)tx=sr.left-rr.left+px-tw-12;tooltip.style.left=Math.max(sr.left-rr.left,tx)+'px';tooltip.style.top=(sr.top-rr.top+top+8)+'px'}
+svg.append('rect').attr('x',left).attr('y',top).attr('width',right-left).attr('height',bottom-top).attr('fill','transparent').style('touch-action','pan-y').style('cursor','crosshair')
+  .on('pointermove',e=>{if(!pinned||e.pointerType!=='mouse')hover(e)})
+  .on('pointerdown',e=>{if(e.pointerType!=='mouse'){pinned=true;hover(e)}})
+  .on('pointerleave',e=>{if(!pinned&&e.pointerType==='mouse')hideTip()})
+  .on('click',e=>{if(e.pointerType==='mouse'||!e.pointerType)pinned=!pinned;hover(e)});
+// Keep edge tick labels inside the measured container.
+xa.selectAll('text').each(function(){const b=this.getBoundingClientRect(),r=q('chart').getBoundingClientRect();if(b.left<r.left+4)d3.select(this).attr('text-anchor','start');if(b.right>r.right-4)d3.select(this).attr('text-anchor','end')});
+}
+[['Proposed tiers',''],['Original flat 5%','original-swatch']].forEach((item,i)=>{const button=document.createElement('button');button.type='button';button.className='legend-series';button.setAttribute('aria-pressed','true');button.innerHTML='<span class="swatch '+item[1]+'"></span>'+item[0];button.addEventListener('click',()=>{visible[i]=!visible[i];button.setAttribute('aria-pressed',String(visible[i]));hideTip();draw()});q('legend').appendChild(button)});
+function pair(slider,field){q(slider).addEventListener('input',()=>{q(field).value=q(slider).value;render()});q(field).addEventListener('input',()=>{const v=Number(q(field).value);if(Number.isFinite(v)){if(v>Number(q(slider).max))q(slider).max=String(v);q(slider).value=String(v)}render()})}
+pair('price','price-number');for(let i=1;i<=3;i++)pair('r'+i,'r'+i+'-number');['t1','t2','s1','s2','reference','vat','legal'].forEach(id=>q(id).addEventListener('input',render));
+q('reset').addEventListener('click',reset);
+// Tapping anywhere outside the chart dismisses a pinned tooltip.
+document.addEventListener('pointerdown',e=>{if(pinned&&!q('chart').contains(e.target))hideTip()});
+root.saleCalculator={get,broker,legal,net,portions,catchup,render};restore();render();new ResizeObserver(()=>draw()).observe(q('chart-wrap'));
+})();
+</script>
+</body>
+</html>
