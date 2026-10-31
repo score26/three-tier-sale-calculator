@@ -100,6 +100,8 @@ h2{font-size:1.1rem}
 .breakdown tr.total td{font-weight:700;color:var(--foreground);border-bottom:0;border-top:2px solid var(--foreground)}
 .breakdown tr.lead td{color:var(--foreground);font-weight:600}
 svg .mark-label{font-size:11px;fill:var(--muted-foreground)}
+#ts-chart0-wrap{min-width:0}
+#ts-chart0{display:block;width:100%;overflow:visible}
 .chart-line{fill:none;stroke-width:2.5}
 svg text{fill:var(--foreground);font-size:12px}
 .legend-series{display:inline-flex;align-items:center;gap:8px;background:transparent;border:0;color:var(--foreground);padding:8px 0;min-height:44px;font:inherit;font-size:.9rem;cursor:pointer}
@@ -159,6 +161,8 @@ tr.highlight td{font-weight:650}
       <input id="ts-price" class="form-range" type="range" min="500000" max="1200000" step="1000" value="800000" aria-label="Sale price slider">
       <span class="euro"><input id="ts-price-number" class="form-control" type="number" inputmode="numeric" aria-label="Sale price in euros" min="100000" max="3000000" step="1000" value="800000"></span>
     </div>
+    <div id="ts-chart0-wrap"><svg id="ts-chart0" role="img" aria-label="What the seller keeps after fees and tax at each sale price"></svg></div>
+    <div class="text-small">The dot is the price above. Tap the chart to read any price.</div>
   </section>
 
   <section class="card">
@@ -255,7 +259,7 @@ const colors=['var(--viz-series-1)','var(--viz-series-2)','var(--viz-series-3)']
 const fields=['price','price-number','t1','t2','r1','r1-number','r2','r2-number','r3','r3-number','vat','legal','s1','s2','tax','buy','coef','buycosts','other','deduct','reference'],storeKey='three-tier-sale-calculator-v2';
 // 2026 IRS general rates (art. 68.º CIRS): [upper bound of bracket, marginal rate %]. Source: Portal das Finanças, "Taxas aplicáveis 2026".
 const BRACKETS=[[8342,12.5],[12587,15.7],[17838,21.2],[23089,24.1],[29397,31.1],[43090,34.9],[46566,43.1],[86634,44.6],[Infinity,48]];
-let state,pinned=false;const visible={chart:[true,true],chart2:[true,true]};
+let state,pinned=false;const visible={chart0:[true],chart:[true,true],chart2:[true,true]};
 const n=id=>Number(q(id).value);
 function get(){return {p:n('price-number'),t1:n('t1'),t2:n('t2'),rates:[n('r1-number')/100,n('r2-number')/100,n('r3-number')/100],s1:n('s1')/100,s2:n('s2')/100,vat:q('vat').checked?1.23:1,legal:q('legal').checked,ref:n('reference'),tax:q('tax').checked,buy:n('buy'),coef:n('coef'),buyCosts:n('buycosts'),other:n('other'),deduct:q('deduct').checked}}
 function portions(p,s){return [Math.min(p,s.t1),Math.min(Math.max(p-s.t1,0),s.t2-s.t1),Math.max(p-s.t2,0)]}
@@ -310,6 +314,9 @@ function hideTip(){pinned=false;q('tooltip').hidden=true;if(typeof d3!=='undefin
 function specs(s){
 const proposedColor='var(--viz-series-1)',originalColor='var(--viz-series-4)',start=taxStart(s);
 return {
+  chart0:{label:'Seller keeps (€)',height:200,series:[{name:'Seller keeps',color:'var(--positive)',f:p=>net(p,s)}],
+    marks:start!==null&&start>0?[{x:start,label:'Tax starts'}]:[],
+    tip:p=>'<div><strong>'+fmt(p)+' sale</strong></div><div>Seller keeps: '+fmt(net(p,s))+'</div><div>Fees + VAT: '+fmt(fees(p,s))+'</div>'+(s.tax?'<div>Capital gains tax: '+fmt(cgt(p,s))+'</div>':'')},
   chart2:{label:'Seller costs (€)',series:[{name:'Proposed tiers',color:proposedColor,f:p=>p-net(p,s)},{name:'Original flat 5%',color:originalColor,dash:'6 4',f:p=>p-net(p,s,true)}],
     marks:start!==null&&start>0?[{x:start,label:'Tax starts'}]:[],
     tip:p=>'<div><strong>'+fmt(p)+' sale</strong></div>'+(visible.chart2[0]?'<div>Proposed: costs '+fmt(p-net(p,s))+(s.tax?' (tax '+fmt(cgt(p,s))+')':'')+', keeps '+fmt(net(p,s))+'</div>':'')+(visible.chart2[1]?'<div>Original: costs '+fmt(p-net(p,s,true))+(s.tax?' (tax '+fmt(cgt(p,s,true))+')':'')+', keeps '+fmt(net(p,s,true))+'</div>':'')},
@@ -317,7 +324,7 @@ return {
     tip:p=>'<div><strong>'+fmt(p)+' sale</strong></div>'+(visible.chart[0]?'<div>Proposed broker: '+fmt(broker(p,s))+'</div>':'')+(visible.chart[1]?'<div>Original 5%: '+fmt(p*.05)+'</div>':'')}
 };
 }
-function drawAll(){if(typeof d3==='undefined'){['chart','chart2'].forEach(id=>q(id+'-wrap').textContent='Chart unavailable; live figures remain available.');return}if(!state)return;const s=state,sp=specs(s);
+function drawAll(){if(typeof d3==='undefined'){['chart0','chart','chart2'].forEach(id=>q(id+'-wrap').textContent='Chart unavailable; live figures remain available.');return}if(!state)return;const s=state,sp=specs(s);
 // Shared x range so both charts line up; include where tax starts if it is nearby.
 const start=taxStart(s),anchors=[s.p,s.ref,s.t1,s.t2];if(start!==null&&start>0&&start<Math.max(...anchors)*1.4)anchors.push(start);
 const extent=d3.extent(anchors),pad=Math.max(50000,(extent[1]-extent[0])*.3),lo=Math.max(0,extent[0]-pad),hi=extent[1]+pad;
@@ -325,7 +332,7 @@ const prices=Array.from(new Set([...d3.range(lo,hi,(hi-lo)/200),hi,s.t1,s.t2,s.p
 Object.keys(sp).forEach(id=>draw(id,sp[id],lo,hi,prices));
 }
 function draw(id,spec,lo,hi,prices){const s=state,vis=visible[id],svgNode=q(id);
-const width=Math.max(280,q(id+'-wrap').getBoundingClientRect().width),narrow=width<440,height=narrow?240:285,margin={left:narrow?56:70,right:12,top:16,bottom:53},svg=d3.select(svgNode).attr('viewBox','0 0 '+width+' '+height).attr('height',height);
+const width=Math.max(280,q(id+'-wrap').getBoundingClientRect().width),narrow=width<440,height=spec.height||(narrow?240:285),margin={left:narrow?56:70,right:12,top:16,bottom:53},svg=d3.select(svgNode).attr('viewBox','0 0 '+width+' '+height).attr('height',height);
 svg.selectAll('*').remove();
 const ys=prices.flatMap(p=>spec.series.filter((_,i)=>vis[i]).map(se=>se.f(p))),yd=ys.length?d3.extent(ys):[0,1],yp=Math.max(1000,(yd[1]-yd[0])*.14);
 const x=d3.scaleLinear().domain([lo,hi]).range([margin.left+4,width-margin.right-4]),y=d3.scaleLinear().domain([Math.max(0,yd[0]-yp),yd[1]+yp]).nice().range([height-margin.bottom-4,margin.top+4]);
@@ -334,7 +341,7 @@ svg.append('rect').attr('x',left).attr('y',top).attr('width',right-left).attr('h
 svg.append('defs').append('clipPath').attr('id',clip).append('rect').attr('x',left).attr('y',top).attr('width',right-left).attr('height',bottom-top);
 const yAxis=svg.append('g').attr('transform','translate('+left+',0)').call(d3.axisLeft(y).ticks(4).tickFormat(k).tickSize(0));yAxis.select('.domain').remove();yAxis.selectAll('text').attr('dx',-5);
 y.ticks(4).forEach(v=>svg.append('line').attr('x1',left).attr('x2',right).attr('y1',y(v)).attr('y2',y(v)).attr('stroke','var(--border)').attr('stroke-width',.7));
-const xAxis=d3.axisBottom(x).ticks(5).tickFormat(k).tickSize(0);if(narrow)xAxis.tickValues([lo,(lo+hi)/2,hi]);const xa=svg.append('g').attr('transform','translate(0,'+bottom+')').call(xAxis);xa.select('.domain').remove();xa.selectAll('text').attr('dy','1.5em');
+const xAxis=d3.axisBottom(x).ticks(5).tickFormat(k).tickSize(0);if(narrow)xAxis.ticks(3);const xa=svg.append('g').attr('transform','translate(0,'+bottom+')').call(xAxis);xa.select('.domain').remove();xa.selectAll('text').attr('dy','1.5em');
 svg.append('text').attr('x',(left+right)/2).attr('y',height-5).attr('text-anchor','middle').text('Sale price (€)');
 svg.append('text').attr('transform','translate(12,'+((top+bottom)/2)+') rotate(-90)').attr('text-anchor','middle').text(spec.label);
 const plot=svg.append('g').attr('clip-path','url(#'+clip+')');
