@@ -169,9 +169,9 @@ tr.highlight td{font-weight:650}
     </div>
     <div id="ts-error" class="text-destructive" role="alert" hidden></div>
     <div class="tiers">
-      <div class="tier" style="--c:var(--viz-series-1)"><label class="form-label" for="ts-r1">Tier 1 <span class="hint" id="ts-band1"></span></label><div class="rate-row"><input id="ts-r1" class="form-range" type="range" min="0" max="15" step="0.25" value="3.5"><label class="rate-number"><input id="ts-r1-number" class="form-control" type="number" inputmode="decimal" aria-label="Tier 1 brokerage rate percent" min="0" max="100" step="0.25" value="3.5">%</label></div><div class="text-small" id="ts-part1"></div></div>
-      <div class="tier" style="--c:var(--viz-series-2)"><label class="form-label" for="ts-r2">Tier 2 <span class="hint" id="ts-band2"></span></label><div class="rate-row"><input id="ts-r2" class="form-range" type="range" min="0" max="25" step="0.25" value="6"><label class="rate-number"><input id="ts-r2-number" class="form-control" type="number" inputmode="decimal" aria-label="Tier 2 brokerage rate percent" min="0" max="100" step="0.25" value="6">%</label></div><div class="text-small" id="ts-part2"></div></div>
-      <div class="tier" style="--c:var(--viz-series-3)"><label class="form-label" for="ts-r3">Tier 3 <span class="hint" id="ts-band3"></span></label><div class="rate-row"><input id="ts-r3" class="form-range" type="range" min="0" max="40" step="0.25" value="10"><label class="rate-number"><input id="ts-r3-number" class="form-control" type="number" inputmode="decimal" aria-label="Tier 3 brokerage rate percent" min="0" max="100" step="0.25" value="10">%</label></div><div class="text-small" id="ts-part3"></div></div>
+      <div class="tier" style="--c:var(--viz-series-1)"><label class="form-label" for="ts-r1">Tier 1 <span class="hint" id="ts-band1"></span></label><div class="rate-row"><input id="ts-r1" class="form-range" type="range" min="0" max="15" step="0.25" value="4.5"><label class="rate-number"><input id="ts-r1-number" class="form-control" type="number" inputmode="decimal" aria-label="Tier 1 brokerage rate percent" min="0" max="100" step="0.25" value="4.5">%</label></div><div class="text-small" id="ts-part1"></div></div>
+      <div class="tier" style="--c:var(--viz-series-2)"><label class="form-label" for="ts-r2">Tier 2 <span class="hint" id="ts-band2"></span></label><div class="rate-row"><input id="ts-r2" class="form-range" type="range" min="0" max="25" step="0.25" value="10"><label class="rate-number"><input id="ts-r2-number" class="form-control" type="number" inputmode="decimal" aria-label="Tier 2 brokerage rate percent" min="0" max="100" step="0.25" value="10">%</label></div><div class="text-small" id="ts-part2"></div></div>
+      <div class="tier" style="--c:var(--viz-series-3)"><label class="form-label" for="ts-r3">Tier 3 <span class="hint" id="ts-band3"></span></label><div class="rate-row"><input id="ts-r3" class="form-range" type="range" min="0" max="40" step="0.25" value="15"><label class="rate-number"><input id="ts-r3-number" class="form-control" type="number" inputmode="decimal" aria-label="Tier 3 brokerage rate percent" min="0" max="100" step="0.25" value="15">%</label></div><div class="text-small" id="ts-part3"></div></div>
     </div>
     <p class="text-small" style="margin:0">Each rate applies only to the part of the price inside its tier.</p>
   </section>
@@ -237,7 +237,7 @@ tr.highlight td{font-weight:650}
 
   <section class="card">
     <h2>Do both earn more than at the reference sale?</h2>
-    <label class="form-label">Reference sale price <span class="hint">original 5% broker + <span id="ts-reference-legal">1% solicitor</span></span><span class="euro" style="max-width:260px"><input id="ts-reference" class="form-control" type="number" inputmode="numeric" min="100000" max="3000000" step="10000" value="750000"></span></label>
+    <label class="form-label">Reference sale price <span class="hint">original 5% broker + <span id="ts-reference-legal">1% solicitor</span></span><span class="euro" style="max-width:260px"><input id="ts-reference" class="form-control" type="number" inputmode="numeric" min="100000" max="3000000" step="10000" value="760000"></span></label>
     <div class="table-responsive"><table><thead><tr><th>Scenario</th><th class="text-end">Broker gets¹</th><th class="text-end">Seller keeps²</th></tr></thead><tbody id="ts-results"></tbody></table></div>
     <div id="ts-win" aria-live="polite"></div>
     <div id="ts-match" class="text-small"></div>
@@ -252,7 +252,7 @@ tr.highlight td{font-weight:650}
 (()=>{
 const root=document.getElementById('tier-sale-lab'),q=id=>root.querySelector('#ts-'+id),euro=new Intl.NumberFormat('en-IE',{style:'currency',currency:'EUR',maximumFractionDigits:0}),num=new Intl.NumberFormat('en-IE',{maximumFractionDigits:2}),fmt=v=>euro.format(v),signed=v=>(v>=0?'+':'−')+fmt(Math.abs(v)),k=v=>'€'+num.format(v/1000)+'k';
 const colors=['var(--viz-series-1)','var(--viz-series-2)','var(--viz-series-3)'];
-const fields=['price','price-number','t1','t2','r1','r1-number','r2','r2-number','r3','r3-number','vat','legal','s1','s2','tax','buy','coef','buycosts','other','deduct','reference'],storeKey='three-tier-sale-calculator-v1';
+const fields=['price','price-number','t1','t2','r1','r1-number','r2','r2-number','r3','r3-number','vat','legal','s1','s2','tax','buy','coef','buycosts','other','deduct','reference'],storeKey='three-tier-sale-calculator-v2';
 // 2026 IRS general rates (art. 68.º CIRS): [upper bound of bracket, marginal rate %]. Source: Portal das Finanças, "Taxas aplicáveis 2026".
 const BRACKETS=[[8342,12.5],[12587,15.7],[17838,21.2],[23089,24.1],[29397,31.1],[43090,34.9],[46566,43.1],[86634,44.6],[Infinity,48]];
 let state,pinned=false;const visible={chart:[true,true],chart2:[true,true]};
